@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Tahunan - E Daily Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navy: '#00254d',
+                            blue: '#0064ff',
+                            platinum: '#f8fafc',
+                            softBlue: '#e6f0ff'
+                        }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-hide {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-brand-platinum h-screen flex overflow-hidden font-sans text-slate-900">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+        class="sidebar-hide lg:transform-none fixed lg:relative w-72 bg-brand-navy h-screen flex flex-col shadow-2xl z-50 transition-all duration-300 flex-shrink-0">
+        <div class="p-8 border-b border-white/5 flex flex-col items-center text-center shrink-0">
+            <div
+                class="w-12 h-12 bg-brand-blue rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg mb-3">
+                E</div>
+            <h2 class="text-white font-black tracking-widest uppercase text-xs">E Daily Report</h2>
+            <p class="text-brand-blue text-[10px] font-bold uppercase tracking-widest mt-1">Ruang Kerja Manajer</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📊</span> Dashboard
+            </a>
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Manajemen Tim
+            </div>
+            <a href="review-activity.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>✔️</span> Validasi Laporan
+            </a>
+            <a href="team-kpi-tracking.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📈</span> Capaian Pegawai
+            </a>
+            <a href="employee-map.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>🗺️</span> Sebaran Aktivitas Pegawai
+            </a>
+
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Performa Saya
+            </div>
+            <a href="my-kpi.html"
+                class="flex items-center gap-3 px-4 py-3 text-white bg-white/10 rounded-xl font-bold transition-all border-l-4 border-brand-blue">
+                <span>🎯</span> KPI Tahunan
+            </a>
+            <a href="activity-log.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>✍️</span> Aktivitas Saya
+            </a>
+            <a href="my-map.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📍</span> Peta Saya (GIS)
+            </a>
+
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Komunikasi</div>
+            <a href="internal-memo.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📢</span> Pengumuman
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5 shrink-0">
+            <button onclick="AuthEngine.logout()"
+                class="w-full py-3 bg-white/5 hover:bg-red-500/20 text-white text-[10px] font-black uppercase rounded-xl transition-all border border-white/10">
+                Keluar Sistem
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header
+            class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 z-10 shadow-sm shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold text-brand-navy uppercase tracking-tight">KPI
+                        Manajerial Saya</h1>
+                    <p class="hidden md:block text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                        Target Strategis Eksekutif Anda</p>
+                </div>
+            </div>
+            <div
+                class="h-10 w-10 rounded-xl bg-brand-softBlue flex items-center justify-center text-xl shadow-inner border border-brand-blue/10 font-black text-brand-blue">
+                M</div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar">
+
+            <!-- BANNER SLIDESHOW -->
+            <div
+                class="relative bg-brand-navy rounded-[2.5rem] mb-10 shadow-2xl overflow-hidden min-h-[280px] flex items-center shrink-0">
+                <div id="banner-slider" class="absolute inset-0 flex transition-transform duration-[2s] ease-in-out">
+                    <img src="../assets/img/slides/img-3.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="">
+                    <img src="../assets/img/slides/img-2.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="">
+                    <img src="../assets/img/slides/img-1.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-navy via-brand-navy/60 to-transparent"></div>
+                <div
+                    class="relative z-10 p-8 lg:p-12 w-full flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                    <div class="max-w-2xl">
+                        <div
+                            class="inline-block px-4 py-1.5 bg-brand-blue text-white text-[9px] font-black tracking-widest mb-6 border border-white/20 uppercase rounded-lg">
+                            Fokus Performa</div>
+                        <h2 class="text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">Target
+                            Terukur.<br>Kinerja <span class="text-brand-blue">Profesional.</span></h2>
+                        <p class="text-slate-200 text-sm lg:text-base mt-4 font-medium leading-relaxed">Pantau
+                            perkembangan objektif tahunan Anda secara transparan. Setiap aktivitas manajerial
+                            berkontribusi langsung pada pencapaian target strategis perusahaan.</p>
+                        <div class="flex gap-2 mt-8 justify-center md:justify-start">
+                            <div class="h-1.5 w-8 rounded-full bg-brand-blue transition-all duration-500" id="b-dot-0">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-1">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADVISORY CARD -->
+            <div
+                class="bg-brand-softBlue border border-brand-blue/10 rounded-[2.5rem] p-8 mb-10 flex items-start gap-6 shadow-sm">
+                <div class="text-4xl mt-1 text-brand-blue">🎯</div>
+                <div>
+                    <h4 class="text-sm font-black text-brand-navy uppercase tracking-widest">Arahan Target Manajerial
+                    </h4>
+                    <p class="text-sm font-semibold text-brand-navy/70 mt-2 max-w-4xl leading-relaxed">
+                        Berikut adalah KPI eksekutif yang ditugaskan kepada Anda oleh Direksi. Kemajuan Anda diukur
+                        berdasarkan laporan aktivitas manajerial, perencanaan strategis, dan pengawasan tim. Pastikan
+                        setiap pencapaian tercatat dengan akurat.
+                    </p>
+                </div>
+            </div>
+
+            <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- KPI Cards dimuat via JS -->
+            </div>
+            <div class="h-10"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/db-mock.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = AuthEngine.getCurrentUser();
+            const dbData = MockDB._getData();
+            const myKpis = (dbData.kpis || []).filter(k => k.user_id === user.id);
+            const myApprovedLogs = MockDB.getTimesheetsByUser(user.id).filter(l => l.status === 'APPROVED');
+            const container = document.getElementById('kpi-container');
+
+            // Slider Logic
+            let currentSlide = 0;
+            const bannerSlider = document.getElementById('banner-slider');
+            const dots = [document.getElementById('b-dot-0'), document.getElementById('b-dot-1'), document.getElementById('b-dot-2')];
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % 3;
+                bannerSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.replace('w-3', 'w-8');
+                        dot.classList.replace('bg-white/30', 'bg-brand-blue');
+                    } else {
+                        dot.classList.replace('w-8', 'w-3');
+                        dot.classList.replace('bg-brand-blue', 'bg-white/30');
+                    }
+                });
+            }, 5000);
+
+            if (myKpis.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-3 bg-white p-20 rounded-[2.5rem] border border-slate-100 shadow-sm text-center flex flex-col items-center">
+                        <span class="text-5xl opacity-20 mb-4">📊</span>
+                        <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest">Belum Ada KPI Manajerial yang Ditugaskan</h3>
+                        <p class="text-xs text-slate-500 mt-2 font-medium">Silakan berkonsultasi dengan Direksi untuk penetapan target tahunan Anda.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = myKpis.map(kpi => {
+                const relatedLogs = myApprovedLogs.filter(l => l.kpi_id === kpi.id);
+                const totalMins = relatedLogs.reduce((sum, l) => sum + parseInt(l.minutes), 0);
+                const currentHours = (totalMins / 60).toFixed(1);
+                let percent = (currentHours / kpi.target_hours) * 100;
+                if (percent > 100) percent = 100;
+
+                let barColor = 'bg-red-500';
+                let textColor = 'text-red-600';
+                if (percent >= 50) { barColor = 'bg-amber-500'; textColor = 'text-amber-600'; }
+                if (percent >= 100) { barColor = 'bg-brand-blue'; textColor = 'text-brand-blue'; }
+
+                return `
+                    <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl relative overflow-hidden group hover:border-brand-blue transition-all flex flex-col h-full">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="px-3 py-1 bg-brand-softBlue text-brand-blue font-black text-[9px] uppercase tracking-widest rounded-md border border-brand-blue/10">${kpi.id}</span>
+                            <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">${kpi.year}</span>
+                        </div>
+                        <h3 class="text-lg font-extrabold text-brand-navy mb-8 leading-snug flex-1 group-hover:text-brand-blue transition-colors">${kpi.objective}</h3>
+                        <div class="mt-auto pt-6 border-t border-slate-50">
+                            <div class="flex justify-between items-end mb-3">
+                                <div>
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Waktu Tercatat</p>
+                                    <p class="text-2xl font-black text-brand-navy leading-none mt-1">${currentHours} <span class="text-[10px] text-slate-400 uppercase font-bold">/ ${kpi.target_hours} Jam</span></p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-lg font-black ${textColor}">${percent.toFixed(1)}%</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-[2px]">
+                                <div class="${barColor} h-full rounded-full transition-all duration-[1.5s] ease-out" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        });
+    </script>
+</body>
+
+</html>

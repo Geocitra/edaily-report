@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Aktivitas - E Daily Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navy: '#00254d',
+                            blue: '#0064ff',
+                            platinum: '#f8fafc',
+                            softBlue: '#e6f0ff'
+                        }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 37, 77, 0.85);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .center-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            z-index: 1000;
+            font-size: 2.5rem;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-hide {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-brand-platinum h-screen flex overflow-hidden font-sans text-slate-900">
+
+    <!-- SIDEBAR - Standar E-Daily Report -->
+    <aside id="sidebar"
+        class="sidebar-hide lg:transform-none fixed lg:relative w-72 bg-brand-navy h-screen flex flex-col shadow-2xl z-50 transition-all duration-300 flex-shrink-0">
+        <div class="p-8 border-b border-white/5 flex flex-col items-center text-center shrink-0">
+            <div
+                class="w-12 h-12 bg-brand-blue rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg mb-3">
+                E</div>
+            <h2 class="text-white font-black tracking-widest uppercase text-xs">E Daily Report</h2>
+            <p class="text-brand-blue text-[10px] font-bold uppercase tracking-widest mt-1">Ruang Kerja Pegawai</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📊</span> Dashboard
+            </a>
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Performa Saya
+            </div>
+            <a href="my-kpi.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>🎯</span> Capaian Saya
+            </a>
+            <a href="activity-log.html"
+                class="flex items-center gap-3 px-4 py-3 text-white bg-white/10 rounded-xl font-bold transition-all border-l-4 border-brand-blue">
+                <span>✍️</span> Laporan Aktivitas
+            </a>
+            <a href="history.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📚</span> Riwayat Laporan
+            </a>
+            <a href="my-map.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>🗺️</span> Sebaran Aktivitas
+            </a>
+
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Komunikasi</div>
+            <a href="announcements.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📢</span> Pengumuman
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5 shrink-0">
+            <button onclick="AuthEngine.logout()"
+                class="w-full py-3 bg-white/5 hover:bg-red-500/20 text-white text-[10px] font-black uppercase rounded-xl transition-all border border-white/10">
+                Keluar Sistem
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- HEADER -->
+        <header
+            class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 z-10 shadow-sm shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold text-brand-navy uppercase tracking-tight">Input Laporan
+                        Aktivitas</h1>
+                    <p class="hidden md:block text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                        Catat hasil kerja dan lokasi operasional harian Anda</p>
+                </div>
+            </div>
+            <div id="session-user-initials"
+                class="h-10 w-10 rounded-xl bg-brand-softBlue flex items-center justify-center font-black text-brand-blue border border-brand-blue/10">
+            </div>
+        </header>
+
+        <!-- BODY CONTENT -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar">
+
+            <!-- BANNER SLIDESHOW -->
+            <div
+                class="relative bg-brand-navy rounded-[2.5rem] mb-10 shadow-2xl overflow-hidden min-h-[280px] flex items-center shrink-0">
+                <div id="banner-slider" class="absolute inset-0 flex transition-transform duration-[2s] ease-in-out">
+                    <img src="../assets/img/slides/img-1.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 1">
+                    <img src="../assets/img/slides/img-2.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 2">
+                    <img src="../assets/img/slides/img-3.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 3">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-navy via-brand-navy/60 to-transparent"></div>
+                <div class="relative z-10 p-8 lg:p-12 w-full flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-center md:text-left">
+                        <div
+                            class="inline-block px-4 py-1.5 bg-brand-blue text-white text-[9px] font-black tracking-widest mb-6 border border-white/20 uppercase rounded-lg">
+                            Produktivitas Harian</div>
+                        <h2 class="text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                            Kerja Terencana.<br>Hasil <span class="text-brand-blue">Terdata.</span>
+                        </h2>
+                        <p class="text-slate-200 text-sm lg:text-base mt-4 max-w-xl font-medium leading-relaxed">
+                            Setiap laporan yang Anda kirimkan sangat berharga untuk penilaian kinerja objektif. Pastikan
+                            rincian pekerjaan dan lokasi sudah akurat.
+                        </p>
+                        <div class="flex gap-2 mt-8 justify-center md:justify-start">
+                            <div class="h-1.5 w-8 rounded-full bg-brand-blue transition-all duration-500" id="b-dot-0">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-1">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM SECTION -->
+            <div class="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+                <div class="p-8 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-lg font-extrabold text-brand-navy uppercase tracking-tight">Formulir Harian</h3>
+                    <div
+                        class="flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Sistem Online</span>
+                    </div>
+                </div>
+
+                <form id="form-ts" onsubmit="handleKirimTS(event)" class="p-8 space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kaitan
+                            Target KPI <span class="text-brand-blue">*</span></label>
+                        <select id="t_kpi"
+                            class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-semibold focus:ring-2 focus:ring-brand-blue outline-none appearance-none"
+                            required></select>
+                        <p id="kpi-warning" class="hidden text-xs text-red-500 font-bold mt-1">Anda tidak memiliki KPI
+                            aktif. Silakan hubungi atasan Anda.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rincian
+                            Aktivitas Pekerjaan <span class="text-brand-blue">*</span></label>
+                        <textarea id="t_activity" rows="4"
+                            class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-semibold focus:ring-2 focus:ring-brand-blue outline-none leading-relaxed"
+                            placeholder="Apa saja yang Anda selesaikan hari ini? Mohon tuliskan secara spesifik..."
+                            required></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Durasi
+                                Kerja (Menit) <span class="text-brand-blue">*</span></label>
+                            <input type="number" id="t_time"
+                                class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 font-extrabold text-xl focus:ring-2 focus:ring-brand-blue outline-none"
+                                placeholder="120" required min="10">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mode
+                                Kerja <span class="text-brand-blue">*</span></label>
+                            <select id="t_mode"
+                                class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-brand-blue outline-none appearance-none"
+                                required>
+                                <option value="OFFICE">🏢 KANTOR (WFO)</option>
+                                <option value="REMOTE">🏠 WFA (WFH)</option>
+                                <option value="CLIENT_SITE">🤝 LAPANGAN / MITRA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Verifikasi
+                            Lokasi (GIS) <span class="text-brand-blue">*</span></label>
+                        <div
+                            class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-brand-blue hover:bg-brand-softBlue/30 transition-all group">
+                            <div id="text-coord"
+                                class="text-xs font-mono font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-blue text-center">
+                                LOKASI BELUM DIPILIH</div>
+                            <input type="hidden" id="h_lat"><input type="hidden" id="h_lng">
+                            <button type="button" onclick="bukaModalPeta()"
+                                class="bg-white hover:bg-brand-blue hover:text-white text-brand-navy border border-slate-200 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg transition-all flex items-center gap-3">
+                                <span>📍</span> Pilih Lokasi di Peta
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-slate-100">
+                        <button type="submit" id="btn-submit"
+                            class="w-full bg-brand-blue hover:bg-brand-navy text-white font-black py-5 rounded-2xl shadow-xl shadow-brand-blue/20 uppercase tracking-[0.2em] text-[12px] transition-all active:scale-95">
+                            Kirim Laporan Aktivitas
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="h-10"></div>
+        </div>
+    </main>
+
+    <!-- MODAL PETA -->
+    <div class="modal-overlay" id="modal-peta">
+        <div class="bg-white w-[95%] max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[650px]">
+            <div class="p-8 bg-brand-navy text-white flex justify-between items-center">
+                <h3 class="font-black uppercase text-xs tracking-widest">Pinpoint Lokasi Kerja</h3>
+                <button type="button" onclick="tutupModalPeta()"
+                    class="text-3xl text-slate-400 hover:text-white transition-colors">&times;</button>
+            </div>
+            <div class="flex-1 relative">
+                <div id="map-picker" class="h-full w-full bg-slate-100"></div>
+                <div class="center-pin">📍</div>
+            </div>
+            <div
+                class="p-8 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-6 justify-between items-center">
+                <div class="text-[11px] font-mono font-black text-brand-blue bg-brand-softBlue px-6 py-3 rounded-xl border border-brand-blue/10"
+                    id="live-coord">0.00000, 0.00000</div>
+                <button type="button"
+                    class="w-full sm:w-auto bg-brand-blue hover:bg-brand-navy text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-brand-blue/20"
+                    onclick="konfirmasiLokasi()">Konfirmasi Lokasi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../assets/js/db-mock.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        let pickerMap, isMapInit = false;
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = AuthEngine.getCurrentUser();
+            const dbData = MockDB._getData();
+            const kpis = (dbData.kpis || []).filter(k => k.user_id === user.id);
+            const sel = document.getElementById('t_kpi');
+
+            // Slider Logic
+            let currentSlide = 0;
+            const bannerSlider = document.getElementById('banner-slider');
+            const dots = [document.getElementById('b-dot-0'), document.getElementById('b-dot-1'), document.getElementById('b-dot-2')];
+
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % 3;
+                bannerSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.replace('w-3', 'w-8');
+                        dot.classList.replace('bg-white/30', 'bg-brand-blue');
+                    } else {
+                        dot.classList.replace('w-8', 'w-3');
+                        dot.classList.replace('bg-brand-blue', 'bg-white/30');
+                    }
+                });
+            }, 5000);
+
+            if (kpis.length === 0) {
+                sel.innerHTML = '<option value="">KPI AKTIF TIDAK DITEMUKAN</option>';
+                sel.disabled = true;
+                document.getElementById('kpi-warning').classList.remove('hidden');
+                document.getElementById('btn-submit').disabled = true;
+                document.getElementById('btn-submit').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                sel.innerHTML = '<option value="">-- Pilih Objektif KPI Terkait --</option>' +
+                    kpis.map(k => `<option value="${k.id}">${k.objective} (${k.target_hours} jam)</option>`).join('');
+            }
+        });
+
+        function bukaModalPeta() {
+            document.getElementById('modal-peta').style.display = 'flex';
+            if (!isMapInit) {
+                pickerMap = L.map('map-picker', { zoomControl: false }).setView([-6.2088, 106.8456], 14);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(pickerMap);
+                pickerMap.on('move', () => {
+                    const c = pickerMap.getCenter();
+                    document.getElementById('live-coord').innerText = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+                });
+                isMapInit = true;
+            }
+            setTimeout(() => pickerMap.invalidateSize(), 200);
+        }
+
+        function tutupModalPeta() { document.getElementById('modal-peta').style.display = 'none'; }
+
+        function konfirmasiLokasi() {
+            const c = pickerMap.getCenter();
+            document.getElementById('h_lat').value = c.lat;
+            document.getElementById('h_lng').value = c.lng;
+            document.getElementById('text-coord').innerText = `TERKUNCI: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
+            document.getElementById('text-coord').classList.replace('text-slate-400', 'text-brand-blue');
+            tutupModalPeta();
+        }
+
+        function handleKirimTS(e) {
+            e.preventDefault();
+            const user = AuthEngine.getCurrentUser();
+
+            if (!document.getElementById('h_lat').value) {
+                return alert('Kesalahan Validasi: Silakan pilih lokasi Anda di peta sebelum mengirim.');
+            }
+
+            if (!user.manager_id) {
+                return alert("Kesalahan Konfigurasi: Akun Anda belum memiliki atasan (Manajer). Gagal mengirim laporan.");
+            }
+
+            const payload = {
+                user_id: user.id,
+                kpi_id: document.getElementById('t_kpi').value,
+                activity: document.getElementById('t_activity').value.trim(),
+                location_mode: document.getElementById('t_mode').value,
+                lat: parseFloat(document.getElementById('h_lat').value),
+                lng: parseFloat(document.getElementById('h_lng').value),
+                minutes: parseInt(document.getElementById('t_time').value)
+            };
+
+            MockDB.submitTimesheet(payload);
+            alert('Sukses! Laporan aktivitas telah dikirim untuk ditinjau oleh Manajer.');
+            window.location.href = 'history.html';
+        }
+    </script>
+</body>
+
+</html>

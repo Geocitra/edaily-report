@@ -1,0 +1,105 @@
+/* ==========================================================================
+   PROLOG - ENTERPRISE PERFORMANCE MANAGEMENT SYSTEM
+   TAILWIND CSS SUPPLEMENT & CUSTOM ANIMATIONS
+   Theme: Deep Navy, Crimson Red, Platinum White
+   ========================================================================== */
+
+/* Menggunakan Font Inter (Standard UI Corporate/SaaS) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f8fafc;
+    /* Platinum White */
+    color: #0f172a;
+    /* Deep Navy */
+}
+
+/* Scrollbar Premium Minimalis */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ==========================================================================
+   ANIMATION LIBRARY
+   ========================================================================== */
+.fade-in {
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ==========================================================================
+   CORPORATE UTILITY CLASSES
+   ========================================================================== */
+
+/* Efek Kaca (Glassmorphism) untuk Modal/Dropdown */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Kustomisasi Badge untuk Status Laporan/KPI agar rapi & konsisten */
+.badge {
+    @apply px-3 py-1 text-[10px] font-bold rounded-md inline-flex items-center uppercase tracking-widest border;
+}
+
+.badge-success {
+    @apply bg-emerald-50 text-emerald-700 border-emerald-200;
+}
+
+.badge-warning {
+    @apply bg-amber-50 text-amber-700 border-amber-200;
+}
+
+.badge-danger {
+    @apply bg-rose-50 text-rose-700 border-rose-200;
+}
+
+.badge-info {
+    @apply bg-indigo-50 text-indigo-700 border-indigo-200;
+}

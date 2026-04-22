@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Manajer - E Daily Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navy: '#00254d',
+                            blue: '#0064ff',
+                            platinum: '#f8fafc',
+                            softBlue: '#e6f0ff'
+                        }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Mencegah layout nabrak dan scrollbar rapi */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-hide {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-brand-platinum h-screen flex overflow-hidden font-sans text-slate-900">
+
+    <!-- SIDEBAR - Standar E-Daily Report -->
+    <aside id="sidebar"
+        class="sidebar-hide lg:transform-none fixed lg:relative w-72 bg-brand-navy h-screen flex flex-col shadow-2xl z-50 transition-all duration-300 flex-shrink-0">
+        <div class="p-8 border-b border-white/5 flex flex-col items-center text-center shrink-0">
+            <div
+                class="w-12 h-12 bg-brand-blue rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg mb-3">
+                E</div>
+            <h2 class="text-white font-black tracking-widest uppercase text-xs">E Daily Report</h2>
+            <p class="text-brand-blue text-[10px] font-bold uppercase tracking-widest mt-1">Ruang Kerja Manajer</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 text-white bg-white/10 rounded-xl font-bold transition-all border-l-4 border-brand-blue">
+                <span>📊</span> Dashboard
+            </a>
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Manajemen Tim
+            </div>
+            <a href="review-activity.html"
+                class="flex items-center justify-between px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold group">
+                <span class="flex items-center gap-3"><span>✔️</span> Validasi Laporan</span>
+                <span id="nav-badge-pending"
+                    class="bg-brand-blue text-white text-[9px] font-black px-2 py-0.5 rounded-full hidden group-hover:bg-white group-hover:text-brand-blue">0</span>
+            </a>
+            <a href="team-kpi-tracking.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📈</span> Capaian Pegawai
+            </a>
+            <a href="employee-map.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>🗺️</span> Sebaran Aktivitas Pegawai
+            </a>
+
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Performa Saya
+            </div>
+            <a href="my-kpi.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>🎯</span> KPI Tahunan
+            </a>
+            <a href="activity-log.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>✍️</span> Aktivitas Saya
+            </a>
+            <a href="my-map.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📍</span> Peta Saya (GIS)
+            </a>
+
+            <div class="px-4 mt-8 mb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Komunikasi</div>
+            <a href="internal-memo.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all font-semibold">
+                <span>📢</span> Pengumuman
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5 shrink-0">
+            <button onclick="AuthEngine.logout()"
+                class="w-full py-3 bg-white/5 hover:bg-red-500/20 text-white text-[10px] font-black uppercase rounded-xl transition-all border border-white/10">
+                Keluar Sistem
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- HEADER -->
+        <header
+            class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 z-10 shadow-sm shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="text-lg lg:text-xl font-extrabold text-brand-navy uppercase tracking-tight">Ringkasan
+                        Manajerial</h1>
+                    <p class="hidden md:block text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                        Kontrol Operasional Departemen</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p id="session-user-name" class="text-xs font-black text-brand-navy uppercase"></p>
+                    <p id="session-user-role" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest"></p>
+                </div>
+                <div id="session-user-initials"
+                    class="h-10 w-10 rounded-xl bg-brand-softBlue flex items-center justify-center font-black text-brand-blue border border-brand-blue/10">
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD BODY -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar">
+
+            <!-- BANNER SLIDESHOW -->
+            <div
+                class="relative bg-brand-navy rounded-[2.5rem] mb-8 shadow-2xl overflow-hidden min-h-[300px] flex items-center shrink-0">
+                <div id="banner-slider" class="absolute inset-0 flex transition-transform duration-[2s] ease-in-out">
+                    <img src="../assets/img/slides/img-1.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 1">
+                    <img src="../assets/img/slides/img-2.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 2">
+                    <img src="../assets/img/slides/img-3.png"
+                        class="w-full h-full object-cover flex-shrink-0 brightness-50" alt="Slide 3">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-navy via-brand-navy/60 to-transparent"></div>
+                <div class="relative z-10 p-8 lg:p-12 w-full flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-center md:text-left">
+                        <div
+                            class="inline-block px-4 py-1.5 bg-brand-blue text-white text-[9px] font-black tracking-widest mb-6 border border-white/20 uppercase rounded-lg">
+                            Manajemen</div>
+                        <h2 class="text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                            Pimpin dengan Teladan.<br>Capai <span class="text-brand-blue">Keunggulan.</span>
+                        </h2>
+                        <p class="text-slate-200 text-sm lg:text-base mt-4 max-w-xl font-medium leading-relaxed">
+                            Pantau produktivitas harian tim Anda. Validasi laporan yang tepat waktu memastikan penilaian
+                            kinerja akurat dan operasional bisnis berjalan lancar.
+                        </p>
+                        <div class="flex gap-2 mt-8 justify-center md:justify-start">
+                            <div class="h-1.5 w-8 rounded-full bg-brand-blue transition-all duration-500" id="b-dot-0">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-1">
+                            </div>
+                            <div class="h-1.5 w-3 rounded-full bg-white/30 transition-all duration-500" id="b-dot-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-8">
+                <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">
+                        Anggota Tim Aktif</p>
+                    <h3 class="text-4xl font-black text-brand-navy relative z-10" id="stat-team-size">0</h3>
+                    <div
+                        class="absolute -right-4 -bottom-4 text-brand-navy text-7xl font-black opacity-[0.03] group-hover:scale-110 transition-transform">
+                        👥</div>
+                </div>
+                <div onclick="window.location.href='review-activity.html'"
+                    class="bg-brand-softBlue p-8 rounded-[2rem] border border-brand-blue/10 shadow-sm cursor-pointer hover:shadow-xl transition-all group relative overflow-hidden">
+                    <p class="text-[10px] font-black text-brand-blue uppercase tracking-widest mb-1 relative z-10">
+                        Menunggu Validasi</p>
+                    <h3 class="text-4xl font-black text-brand-blue relative z-10" id="stat-pending">0</h3>
+                    <p class="text-[9px] font-bold text-brand-blue/60 mt-2 uppercase tracking-widest relative z-10">
+                        Periksa Sekarang &rarr;</p>
+                    <div
+                        class="absolute -right-4 -bottom-4 text-brand-blue text-7xl font-black opacity-[0.05] group-hover:scale-110 transition-transform">
+                        ⏳</div>
+                </div>
+                <div
+                    class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 relative z-10">
+                        Aktivitas Disetujui</p>
+                    <h3 class="text-4xl font-black text-emerald-600 relative z-10" id="stat-approved">0</h3>
+                    <div
+                        class="absolute -right-4 -bottom-4 text-emerald-600 text-7xl font-black opacity-[0.03] group-hover:scale-110 transition-transform">
+                        ✓</div>
+                </div>
+            </div>
+
+            <!-- RECENT ACTIVITIES TABLE -->
+            <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
+                <div class="p-8 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Aktivitas Tim Terbaru
+                    </h3>
+                    <a href="review-activity.html"
+                        class="text-[10px] font-bold text-brand-blue hover:text-brand-navy uppercase tracking-widest">Kelola
+                        Semua</a>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse" id="table-recent-team">
+                        <thead>
+                            <tr
+                                class="bg-white text-[9px] font-black uppercase text-slate-400 border-b border-slate-100 tracking-widest">
+                                <th class="p-6 w-48">Pegawai</th>
+                                <th class="p-6">Detail Aktivitas</th>
+                                <th class="p-6 text-center w-32">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 text-xs font-medium text-slate-700">
+                            <!-- Data dimuat via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="h-10"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/db-mock.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Slideshow Banner Logic
+            let slideIdx = 0;
+            const bannerSlider = document.getElementById('banner-slider');
+            const dots = [document.getElementById('b-dot-0'), document.getElementById('b-dot-1'), document.getElementById('b-dot-2')];
+
+            setInterval(() => {
+                slideIdx = (slideIdx + 1) % 3;
+                bannerSlider.style.transform = `translateX(-${slideIdx * 100}%)`;
+                dots.forEach((dot, index) => {
+                    if (index === slideIdx) {
+                        dot.classList.replace('w-3', 'w-8');
+                        dot.classList.replace('bg-white/30', 'bg-brand-blue');
+                    } else {
+                        dot.classList.replace('w-8', 'w-3');
+                        dot.classList.replace('bg-brand-blue', 'bg-white/30');
+                    }
+                });
+            }, 5000);
+
+            // Inisialisasi Data Tim
+            const user = AuthEngine.getCurrentUser();
+            const team = MockDB.getSubordinates(user.id);
+            const teamIds = team.map(t => t.id);
+
+            document.getElementById('stat-team-size').innerText = team.length;
+
+            const allLogs = MockDB.getTimesheets();
+            const teamLogs = allLogs.filter(l => teamIds.includes(l.user_id)).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const pending = teamLogs.filter(l => l.status === 'PENDING');
+            document.getElementById('stat-pending').innerText = pending.length;
+            document.getElementById('stat-approved').innerText = teamLogs.filter(l => l.status === 'APPROVED').length;
+
+            if (pending.length > 0) {
+                const badge = document.getElementById('nav-badge-pending');
+                badge.classList.remove('hidden');
+                badge.innerText = pending.length;
+            }
+
+            // Populate Table
+            const tbody = document.querySelector('#table-recent-team tbody');
+            const recent = teamLogs.slice(0, 5);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-12 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">Belum ada aktivitas yang dicatat oleh tim Anda.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recent.map(l => {
+                const emp = team.find(t => t.id === l.user_id);
+                let badgeClass = 'bg-amber-50 text-amber-600 border-amber-100';
+                if (l.status === 'APPROVED') badgeClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+                if (l.status === 'REJECTED') badgeClass = 'bg-red-50 text-red-600 border-red-100';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors group">
+                        <td class="p-6">
+                            <p class="font-extrabold text-brand-navy truncate w-36 group-hover:text-brand-blue transition-colors">${emp ? emp.name : 'Tidak Diketahui'}</p>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">${new Date(l.date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}</p>
+                        </td>
+                        <td class="p-6 text-slate-600 truncate max-w-[250px]" title="${l.activity}">${l.activity}</td>
+                        <td class="p-6 text-center">
+                            <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${badgeClass}">${l.status === 'PENDING' ? 'MENUNGGU' : (l.status === 'APPROVED' ? 'DISETUJUI' : 'DITOLAK')}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        });
+    </script>
+</body>
+
+</html>
