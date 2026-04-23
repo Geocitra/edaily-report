@@ -51,15 +51,25 @@
             justify-content: center;
         }
 
-        .center-pin {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -100%);
-            z-index: 1000;
-            font-size: 2.5rem;
-            pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        /* Animasi Loader GPS */
+        .loader-gps {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0064ff;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 1024px) {
@@ -76,7 +86,7 @@
 
 <body class="bg-brand-platinum h-screen flex overflow-hidden font-sans text-slate-900">
 
-    <!-- SIDEBAR - Standar E-Daily Report -->
+    <!-- SIDEBAR - TETAP SESUAI ASLI -->
     <aside id="sidebar"
         class="sidebar-hide lg:transform-none fixed lg:relative w-72 bg-brand-navy h-screen flex flex-col shadow-2xl z-50 transition-all duration-300 flex-shrink-0">
         <div class="p-8 border-b border-white/5 flex flex-col items-center text-center shrink-0">
@@ -164,7 +174,7 @@
         <!-- BODY CONTENT -->
         <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar">
 
-            <!-- BANNER SLIDESHOW (Path: ../) -->
+            <!-- BANNER SLIDESHOW - TETAP -->
             <div
                 class="relative bg-brand-navy rounded-[2.5rem] mb-10 shadow-2xl overflow-hidden min-h-[300px] flex items-center shrink-0">
                 <div id="banner-slider" class="absolute inset-0 flex transition-transform duration-[2s] ease-in-out">
@@ -247,18 +257,19 @@
                         </div>
                     </div>
 
+                    <!-- SEKSI GPS MANAJERIAL (OTOMATIS) -->
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Verifikasi
                             Lokasi GPS <span class="text-brand-blue">*</span></label>
                         <div
                             class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-brand-blue hover:bg-brand-softBlue/30 transition-all group">
                             <div id="text-coord"
-                                class="text-xs font-mono font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-blue">
-                                MENUNGGU VERIFIKASI</div>
+                                class="text-xs font-mono font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-blue text-center leading-relaxed">
+                                LOKASI BELUM TERVERIFIKASI</div>
                             <input type="hidden" id="h_lat"><input type="hidden" id="h_lng">
-                            <button type="button" onclick="bukaModalPeta()"
+                            <button type="button" id="btn-gps" onclick="ambilLokasiGPS()"
                                 class="bg-white hover:bg-brand-blue hover:text-white text-brand-navy border border-slate-200 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg transition-all flex items-center gap-3">
-                                <span>📍</span> Verifikasi Lokasi Saya
+                                <span id="gps-icon">📡</span> <span id="gps-text">Verifikasi Lokasi Saya</span>
                             </button>
                         </div>
                     </div>
@@ -275,17 +286,16 @@
         </div>
     </main>
 
-    <!-- MODAL PETA -->
+    <!-- MODAL PETA - VIEW ONLY UNTUK PREVIEW -->
     <div class="modal-overlay" id="modal-peta">
         <div class="bg-white w-[95%] max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[650px]">
             <div class="p-8 bg-brand-navy text-white flex justify-between items-center">
-                <h3 class="font-black uppercase text-xs tracking-widest">Telemetri Lokasi</h3>
+                <h3 class="font-black uppercase text-xs tracking-widest">Telemetri Lokasi Terkunci</h3>
                 <button type="button" onclick="tutupModalPeta()"
                     class="text-3xl text-slate-400 hover:text-white transition-colors">&times;</button>
             </div>
             <div class="flex-1 relative">
-                <div id="map-picker" class="h-full w-full bg-slate-100"></div>
-                <div class="center-pin">📍</div>
+                <div id="map-preview" class="h-full w-full bg-slate-100"></div>
             </div>
             <div
                 class="p-8 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-6 justify-between items-center">
@@ -293,7 +303,7 @@
                     id="live-coord">0.00000, 0.00000</div>
                 <button type="button"
                     class="w-full sm:w-auto bg-brand-blue hover:bg-brand-navy text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-brand-blue/20"
-                    onclick="konfirmasiLokasi()">Kunci Koordinat</button>
+                    onclick="tutupModalPeta()">Kunci Koordinat</button>
             </div>
         </div>
     </div>
@@ -302,7 +312,7 @@
     <script src="../assets/js/db-mock.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script>
-        let pickerMap, isMapInit = false;
+        let previewMap, previewMarker;
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('sidebar-open');
@@ -334,8 +344,9 @@
 
             setInterval(() => {
                 currentSlide = (currentSlide + 1) % 3;
-                bannerSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                if (bannerSlider) bannerSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
                 dots.forEach((dot, index) => {
+                    if (!dot) return;
                     if (index === currentSlide) {
                         dot.classList.replace('w-3', 'w-8');
                         dot.classList.replace('bg-white/30', 'bg-brand-blue');
@@ -347,29 +358,98 @@
             }, 5000);
         });
 
-        function bukaModalPeta() {
-            document.getElementById('modal-peta').style.display = 'flex';
-            if (!isMapInit) {
-                pickerMap = L.map('map-picker', { zoomControl: false }).setView([-6.2088, 106.8456], 14);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(pickerMap);
-                pickerMap.on('move', () => {
-                    const c = pickerMap.getCenter();
-                    document.getElementById('live-coord').innerText = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
-                });
-                isMapInit = true;
+        // LOGIKA GPS OTOMATIS (HIGH ACCURACY)
+        function ambilLokasiGPS() {
+            const btn = document.getElementById('btn-gps');
+            const btnText = document.getElementById('gps-text');
+            const btnIcon = document.getElementById('gps-icon');
+            const statusText = document.getElementById('text-coord');
+
+            // UI Loading
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+            btnText.innerText = "Mengunci Satelit...";
+            btnIcon.innerHTML = '<span class="loader-gps"></span>';
+
+            if (!navigator.geolocation) {
+                alert("Kesalahan: Device tidak mendukung GPS.");
+                resetGPSButton();
+                return;
             }
-            setTimeout(() => pickerMap.invalidateSize(), 200);
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+
+                    // Simpan koordinat
+                    document.getElementById('h_lat').value = lat;
+                    document.getElementById('h_lng').value = lng;
+
+                    // Update UI
+                    statusText.innerHTML = `<span class="text-brand-blue">[ VERIFIKASI BERHASIL ]</span><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-70', 'bg-white');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    btnText.innerText = "Review Posisi GPS";
+                    btnIcon.innerHTML = '✅';
+
+                    // Ganti fungsi klik tombol
+                    btn.onclick = bukaPreviewPeta;
+
+                    // Otomatis buka preview untuk manajer konfirmasi
+                    bukaPreviewPeta();
+                },
+                (err) => {
+                    alert("Gagal Verifikasi: " + err.message + ". Pastikan fitur Lokasi aktif.");
+                    resetGPSButton();
+                },
+                options
+            );
+        }
+
+        function resetGPSButton() {
+            const btn = document.getElementById('btn-gps');
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            document.getElementById('gps-text').innerText = "Verifikasi Lokasi Saya";
+            document.getElementById('gps-icon').innerHTML = '📡';
+        }
+
+        function bukaPreviewPeta() {
+            const lat = document.getElementById('h_lat').value;
+            const lng = document.getElementById('h_lng').value;
+
+            document.getElementById('modal-peta').style.display = 'flex';
+            document.getElementById('live-coord').innerText = `${parseFloat(lat).toFixed(5)}, ${parseFloat(lng).toFixed(5)}`;
+
+            if (!previewMap) {
+                // Inisialisasi peta View-Only (No Dragging)
+                previewMap = L.map('map-preview', {
+                    zoomControl: false,
+                    dragging: false,
+                    scrollWheelZoom: false,
+                    doubleClickZoom: false,
+                    touchZoom: false
+                }).setView([lat, lng], 16);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(previewMap);
+                previewMarker = L.marker([lat, lng]).addTo(previewMap);
+            } else {
+                previewMap.setView([lat, lng], 16);
+                previewMarker.setLatLng([lat, lng]);
+            }
+            setTimeout(() => previewMap.invalidateSize(), 200);
         }
 
         function tutupModalPeta() { document.getElementById('modal-peta').style.display = 'none'; }
-
-        function konfirmasiLokasi() {
-            const c = pickerMap.getCenter();
-            document.getElementById('h_lat').value = c.lat; document.getElementById('h_lng').value = c.lng;
-            document.getElementById('text-coord').innerText = `TERVERIFIKASI: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
-            document.getElementById('text-coord').classList.replace('text-slate-400', 'text-brand-blue');
-            tutupModalPeta();
-        }
 
         function handleKirimTS(e) {
             e.preventDefault();
