@@ -49,7 +49,7 @@ const AuthEngine = {
 
         // Kalkulasi letak index.html berdasarkan kedalaman direktori saat ini
         const inSubFolder = window.location.pathname.split('/').length > 2;
-        window.location.href = inSubFolder ? '../index.html' : 'index.html';
+        window.location.href = inSubFolder ? '../login.html' : 'login.html';
     },
 
     /**
@@ -70,10 +70,10 @@ const AuthEngine = {
 
         // Cek jika tidak ada sesi aktif (belum login)
         if (!user) {
-            if (!currentPath.endsWith('index.html') && !currentPath.endsWith('/')) {
+            if (!currentPath.endsWith('login.html') && !currentPath.endsWith('/')) {
                 console.warn('Unauthorized access block. Redirecting to corporate portal.');
                 const inSubFolder = currentPath.includes('/admin/') || currentPath.includes('/direksi/') || currentPath.includes('/manager/') || currentPath.includes('/employee/');
-                window.location.href = inSubFolder ? '../index.html' : 'index.html';
+                window.location.href = inSubFolder ? '../login.html' : 'login.html';
             }
             return; // Hentikan script jika sedang berada di halaman login
         }
