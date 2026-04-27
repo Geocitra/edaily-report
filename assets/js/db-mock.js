@@ -75,11 +75,11 @@ const MockDB = {
                 feedback: "Rencana arsitektur sangat detail. Lanjutkan ke tahap testing."
             },
 
-            // KASUS 2: Kerja Jarak Jauh (WFA/WFH)
+            // KASUS 2: Kerja Jarak Jauh (WFH)
             {
                 id: "TS-2026-002", user_id: "EMP-102", kpi_id: "KPI-TI-2026-02",
                 activity: "Sesi koding mandiri: Integrasi komponen UI React dengan state management Redux.",
-                location_mode: "REMOTE", lat: -6.3621, lng: 106.8249,
+                location_mode: "WFH", lat: -6.3621, lng: 106.8249,
                 minutes: 420, status: "APPROVED", date: "2026-04-10T09:00:00",
                 feedback: "Komponen UI terlihat konsisten dengan panduan desain."
             },
@@ -124,9 +124,18 @@ const MockDB = {
             {
                 id: "TS-2026-007", user_id: "EMP-103", kpi_id: null,
                 activity: "Mengerjakan tugas harian biasa.",
-                location_mode: "REMOTE", lat: -6.2000, lng: 106.8000,
+                location_mode: "WFH", lat: -6.2000, lng: 106.8000,
                 minutes: 480, status: "REJECTED", date: "2026-04-14T08:00:00",
                 feedback: "Deskripsi terlalu umum. Mohon rincikan modul atau fitur apa yang dikerjakan."
+            },
+
+            // KASUS 8: WFA (Work From Anywhere)
+            {
+                id: "TS-2026-008", user_id: "EMP-102", kpi_id: "KPI-TI-2026-02",
+                activity: "Refactoring arsitektur komponen React secara remote (WFA).",
+                location_mode: "WFA", lat: -8.409518, lng: 115.188919, // Bali
+                minutes: 360, status: "APPROVED", date: "2026-04-15T10:00:00",
+                feedback: "Kualitas kode sangat rapi. Fleksibilitas lokasi terbukti mendorong produktivitas."
             }
         ],
 

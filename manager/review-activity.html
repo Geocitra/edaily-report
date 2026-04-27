@@ -53,7 +53,6 @@
 
 <body class="bg-brand-platinum h-screen flex overflow-hidden font-sans text-slate-900">
 
-    <!-- SIDEBAR -->
     <aside id="sidebar"
         class="sidebar-hide lg:transform-none fixed lg:relative w-72 bg-brand-navy h-screen flex flex-col z-50 transition-all duration-300 flex-shrink-0 shadow-2xl">
         <div class="p-8 border-b border-white/5 flex flex-col items-center text-center shrink-0">
@@ -116,7 +115,6 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <header
             class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 z-10 shadow-sm shrink-0">
@@ -143,7 +141,6 @@
 
         <div class="flex-1 overflow-y-auto p-4 lg:p-10 custom-scrollbar">
 
-            <!-- BANNER SLIDESHOW -->
             <div
                 class="relative bg-brand-navy rounded-[2.5rem] mb-10 shadow-2xl overflow-hidden min-h-[280px] flex items-center shrink-0">
                 <div id="banner-slider" class="absolute inset-0 flex transition-transform duration-[2s] ease-in-out">
@@ -179,7 +176,6 @@
             </div>
 
             <div class="max-w-5xl mx-auto space-y-6" id="container-antrean">
-                <!-- Cards injected here via JS -->
             </div>
             <div class="h-10"></div>
         </div>
@@ -236,6 +232,16 @@
                 const kpi = (dbData.kpis || []).find(k => k.id === log.kpi_id);
                 const dateStr = new Date(log.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
+                // LOGIKA PEWARNAAN LOKASI KERJA DINAMIS (WFA Terintegrasi)
+                let locBg = 'bg-brand-softBlue', locText = 'text-brand-blue', locBorder = 'border-brand-blue/10';
+                if (log.location_mode === 'WFH') {
+                    locBg = 'bg-emerald-50'; locText = 'text-emerald-600'; locBorder = 'border-emerald-200';
+                } else if (log.location_mode === 'WFA') {
+                    locBg = 'bg-purple-50'; locText = 'text-purple-600'; locBorder = 'border-purple-200';
+                } else if (log.location_mode === 'CLIENT_SITE') {
+                    locBg = 'bg-rose-50'; locText = 'text-rose-600'; locBorder = 'border-rose-200';
+                }
+
                 return `
                     <div class="bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-2xl" id="card-${log.id}">
                         <div class="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-start">
@@ -256,7 +262,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div class="md:col-span-1">
                                     <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Lokasi & Konteks</label>
-                                    <span class="inline-block px-2.5 py-1 bg-brand-softBlue text-brand-blue rounded text-[9px] font-black uppercase tracking-widest border border-brand-blue/10 mb-2">📍 ${log.location_mode}</span>
+                                    <span class="inline-block px-2.5 py-1 ${locBg} ${locText} rounded text-[9px] font-black uppercase tracking-widest border ${locBorder} mb-2">📍 ${log.location_mode}</span>
                                     <p class="text-[11px] font-bold text-brand-navy leading-relaxed italic" title="${kpi ? kpi.objective : ''}">${kpi ? kpi.objective : '<span class="text-slate-300">Tidak Terkait KPI</span>'}</p>
                                 </div>
                                 <div class="md:col-span-2 md:border-l border-slate-50 md:pl-8">
